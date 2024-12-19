@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta content="telephone=no" name="format-detection">
+    <meta content="email=no" name="format-detection">
+    <title>Pag Preview</title>
+    <style>
+      * {
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+    .pag-player{
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #000;
+    }
+    .pag-canvas{
+      width: 50vw;
+      height: 50vh;
+      display: block;
+    }
+    .button-container{
+      position: fixed;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      bottom: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .pag-btn{
+      width: 34px;
+      height: 34px;
+      border-radius: 5px;
+      margin: 4px;
+      border: 1px solid #909090;
+    }
+    .pag-btn-1{
+      background-color: #000;
+    }
+    .pag-btn-2{
+      background-color: #fff;
+    }
+    .pag-btn-3{
+      background-color: #1772f6;
+      border-color: #000;
+    }
+    .pag-play{
+      width: 100px;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      border: 1px solid #005ad9;
+      background-color: #005ad9;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0 16px;
+      height: 48px;
+      line-height: 48px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 18px;
+    }
+    </style>
+  </head>
+  <body>
+    <div class="pag-player">
+      <button onclick="playToggle()" class="pag-play">pause</button>
+      <canvas class="pag-canvas"></canvas>
+    </div>
+    <div class="button-container">
+      <div class="pag-btn pag-btn-1" onclick="changeBg(1)"></div>
+      <div class="pag-btn pag-btn-2" onclick="changeBg(2)"></div>
+      <div class="pag-btn pag-btn-3" onclick="changeBg(3)"></div>
+    </div>
+    <script src="./pag.min.js"></script>
+    <script>
+      const vscode = acquireVsCodeApi();
+      // 监听来自扩展的消息
+      window.addEventListener('message', (event) => {
+        const message = event.data;
+        if (message.type === 'loadFile') {
+          initPag(message.fileUri).catch((err) => {
+            console.log('onError', err)
+          })
+        }
+      });
+      const PAGView = libpag.PAGView;
+      const types = libpag.types;
+      const pagCanvasEl = document.querySelector('.pag-canvas');
+      let pagView = null;
+      const renderingMode = types.RenderingMode.WebGL;
+      const loadPag = async (url) => {
+        let arrayBuffer;
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          arrayBuffer = await response.arrayBuffer();
+        } catch (error) {
+          console.error("Failed to fetch resource as ArrayBuffer:", error);
+        }
+        return Promise.resolve(arrayBuffer)
+      }
+      const initPag = async (src) => {
+        const pagBuffer = await loadPag(src).catch(err => console.warn(err))
+        if (!pagBuffer) {
+          console.log('onError')
+          return
+        }
+        pagView = PAGView.init(pagBuffer, pagCanvasEl, {
+          renderingMode: renderingMode == 'webgl' ? types.RenderingMode.WebGL : types.RenderingMode.Canvas2D,
+          useScale: true
+        });
+        pagView.setRepeatCount(0);
+        await pagView.play();
+      }
+      function play (){ pagView.play()};
+      function pause (){ pagView.pause()};
+      const pagPlayer = document.querySelector('.pag-player');
+      const colors = {
+        1: '#000',
+        2: '#FFF',
+        3: '#1772f6'
+      };
+      let playStatus = true;
+      const playRef = document.querySelector('.pag-play');
+      function playToggle () {
+        if (playStatus) {
+          pause();
+          playRef.innerText = 'play';
+        } else {
+          play();
+          playRef.innerText = 'pause';
+        }
+        playStatus = !playStatus;
+      }
+      function changeBg (type) {
+        pagPlayer.style.backgroundColor = colors[type];
+      }
+    </script>
+  </body>
+</html>
