@@ -2,15 +2,26 @@
   "name": "pag-preview",
   "displayName": "Pag Preview",
   "description": "Preview your PAG animations directly in VS Code.",
-  "keywords": ["pag", "Pag", "animation", "preview", "PAG Preview", "media", "visualization"],
+  "keywords": [
+    "pag",
+    "Pag",
+    "animation",
+    "preview",
+    "PAG Preview",
+    "media",
+    "visualization"
+  ],
   "author": "whb <1159472304@qq.com>",
   "icon": "favicon.ico",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "publisher": "lantianhaijiao",
   "engines": {
-    "vscode": "^1.88.0"
+    "vscode": "^1.87.0"
   },
-  "categories": ["Visualization", "Other"],
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "customEditors": [
@@ -27,7 +38,9 @@
   },
   "activationEvents": [
     "onCommand:pagViewer.editor",
-    "onCustomEditor:pagViewer.editor"
+    "onCustomEditor:pagViewer.editor",
+    "onCommand:pagViewer.fileDetail",
+    "onStartupFinished"
   ],
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -43,7 +56,7 @@
   "devDependencies": {
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
-    "@types/vscode": "^1.88.0",
+    "@types/vscode": "^1.87.0",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
     "@vscode/test-cli": "^0.0.8",
@@ -56,6 +69,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "copy-webpack-plugin": "^12.0.2"
+    "copy-webpack-plugin": "^12.0.2",
+    "html-webpack-plugin": "^5.6.3"
   }
 }

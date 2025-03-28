@@ -6,7 +6,7 @@
 Pag File Preview: A Visual Studio Code extension for previewing PAG files with ease and efficiency.
 
 ## Requirements
-- Visual Studio Code version 1.88.0 or higher.
+- Visual Studio Code version 1.87.0 or higher.
 
 ## Extension Settings
 

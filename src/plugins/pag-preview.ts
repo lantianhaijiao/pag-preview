@@ -2,7 +2,7 @@
  * @Author: haobin.wang
  * @Date: 2024-12-17 11:50:59
  * @LastEditors: haobin.wang
- * @LastEditTime: 2024-12-18 11:29:18
+ * @LastEditTime: 2025-01-03 12:53:32
  * @Description: Do not edit
  */
 import * as vscode from "vscode";
@@ -24,6 +24,7 @@ class PagCustomEditorProvider
   implements vscode.CustomReadonlyEditorProvider<PagCustomDocument>
 {
   public static readonly viewType = "pagViewer.editor";
+  private initializedWebviews: Map<string, vscode.WebviewPanel> = new Map();
 
   constructor(private readonly context: vscode.ExtensionContext) {}
 
@@ -48,7 +49,14 @@ class PagCustomEditorProvider
     _token: vscode.CancellationToken
   ): Promise<void> {
     console.log(`Opening file: ${document.uri.fsPath}`);
+    const documentUri = document.uri.toString();
 
+    // vscode指令通信
+    vscode.commands.executeCommand("pagViewer.fileDetail", document.uri);
+    if (this.initializedWebviews.has(documentUri)) {
+      console.log("Webview already initialized, skipping HTML update.");
+      return;
+    }
     // 设置 Webview 选项
     webviewPanel.webview.options = {
       enableScripts: true,
@@ -60,12 +68,12 @@ class PagCustomEditorProvider
 
     // 将文件 URI 转为 Webview 可访问的路径
     const fileUri = webviewPanel.webview.asWebviewUri(document.uri);
-    console.log("uri--", fileUri.toString());
+    // console.log("uri--", fileUri.toString());
     const htmlPath = path.join(
       this.context.extensionPath,
       "dist/webview/pag.html"
     );
-    console.log("htmlPath", htmlPath);
+    // console.log("htmlPath", htmlPath);
     const htmlContent = fs.readFileSync(htmlPath, "utf-8");
     const fastDiffUri = webviewPanel.webview.asWebviewUri(
       vscode.Uri.file(
@@ -75,16 +83,34 @@ class PagCustomEditorProvider
     const updatedHtmlContent = htmlContent.replace("./pag.min.js", fastDiffUri);
     // 设置 Webview 内容
     webviewPanel.webview.html = updatedHtmlContent;
+     // 存储 Webview Panel 引用
+    this.initializedWebviews.set(documentUri, webviewPanel);
     // 将文件内容发送到 Webview
-    webviewPanel.webview.postMessage({
-      type: "loadFile",
-      fileUri: fileUri.toString(),
-    });
+    const noticeWebviewFile = () => {
+      webviewPanel.webview.postMessage({
+        type: "loadFile",
+        fileUri: fileUri.toString(),
+      });
+    };
+    noticeWebviewFile();
 
     // 监听来自 Webview 的消息
     webviewPanel.webview.onDidReceiveMessage((message) => {
       if (message.command === "alert") {
         vscode.window.showInformationMessage(message.text);
+      }
+    });
+    // 处理自定义编辑器生命周期
+    webviewPanel.onDidDispose(() => {
+      console.log('pag文件关闭');
+      this.initializedWebviews.delete(documentUri);
+      vscode.commands.executeCommand("pagViewer.fileDetail");
+    });
+    // 监听 Webview 面板的可见性变化
+    webviewPanel.onDidChangeViewState((event) => {
+      if (event.webviewPanel.visible) {
+        noticeWebviewFile();
+        vscode.commands.executeCommand("pagViewer.fileDetail", document.uri);
       }
     });
   }
