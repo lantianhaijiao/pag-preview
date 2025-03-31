@@ -2,7 +2,7 @@
  * @Author: haobin.wang
  * @Date: 2024-12-17 11:50:59
  * @LastEditors: haobin.wang
- * @LastEditTime: 2025-01-03 12:53:32
+ * @LastEditTime: 2025-03-30 09:57:24
  * @Description: Do not edit
  */
 import * as vscode from "vscode";
@@ -109,7 +109,7 @@ class PagCustomEditorProvider
     // 监听 Webview 面板的可见性变化
     webviewPanel.onDidChangeViewState((event) => {
       if (event.webviewPanel.visible) {
-        noticeWebviewFile();
+        // noticeWebviewFile();
         vscode.commands.executeCommand("pagViewer.fileDetail", document.uri);
       }
     });
@@ -123,7 +123,7 @@ export default (context: vscode.ExtensionContext) => {
     new PagCustomEditorProvider(context),
     {
       webviewOptions: {
-        retainContextWhenHidden: false, // 切换标签时保留上下文
+        retainContextWhenHidden: true, // 切换标签时保留上下文
       },
     }
   );

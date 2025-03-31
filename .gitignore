@@ -3,4 +3,9 @@ dist
 node_modules
 .vscode-test/
 *.vsix
-.vscode/
+*/.DS_Store
+.DS_Store
+sftp-config.json
+package-lock.json
+.idea
+.vscode

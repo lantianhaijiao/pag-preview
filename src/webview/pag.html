@@ -1,89 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <meta content="yes" name="apple-mobile-web-app-capable">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-    <meta content="telephone=no" name="format-detection">
-    <meta content="email=no" name="format-detection">
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <meta content="yes" name="apple-mobile-web-app-capable" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta content="telephone=no" name="format-detection" />
+    <meta content="email=no" name="format-detection" />
     <title>Pag Preview</title>
     <style>
       * {
-      margin: 0;
-      padding: 0;
-      border: 0;
-    }
-    body{
-      padding: 0 !important;
-    }
-    .pag-player{
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #000;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    .pag-canvas{
-      width: 50vw;
-      height: 50vh;
-      display: block;
-    }
-    .button-container{
-      position: fixed;
-      left: 0;
-      right: 0;
-      margin: 0 auto;
-      bottom: 30px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .pag-btn{
-      width: 34px;
-      height: 34px;
-      border-radius: 5px;
-      margin: 4px;
-      border: 1px solid #909090;
-    }
-    .pag-btn-1{
-      background-color: #000;
-    }
-    .pag-btn-2{
-      background-color: #fff;
-    }
-    .pag-btn-3{
-      background-color: #00bcd3;
-    }
-    .pag-play{
-      width: 100px;
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      border: 1px solid #005ad9;
-      background-color: #005ad9;
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 0 16px;
-      height: 48px;
-      line-height: 48px;
-      border-radius: 8px;
-      text-align: center;
-      font-size: 18px;
-    }
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+      body {
+        padding: 0 !important;
+      }
+      .pag-player {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #000;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      .pag-canvas {
+        width: 50vw;
+        height: 50vh;
+        display: block;
+      }
+      .button-container {
+        position: fixed;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        bottom: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .pag-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 5px;
+        margin: 4px;
+        border: 1px solid #909090;
+      }
+      .pag-btn-1 {
+        background-color: #000;
+      }
+      .pag-btn-2 {
+        background-color: #fff;
+      }
+      .pag-btn-3 {
+        background-color: #00bcd3;
+      }
+      .pag-play {
+        width: 100px;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        border: 1px solid #005ad9;
+        background-color: #005ad9;
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 16px;
+        height: 48px;
+        line-height: 48px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 18px;
+      }
+      #animation-info-box {
+        position: fixed;
+        background-color: rgba(0, 0, 0, 0.5);
+        width: 200px;
+        top: 0;
+        left: 0;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 12px;
+        padding: 10px;
+        min-height: 50px;
+        border-radius: 2px;
+      }
+      #animation-info-box span {
+        display: inline-block;
+        min-width: 40px;
+      }
     </style>
   </head>
   <body>
     <div class="pag-player">
       <button onclick="playToggle()" class="pag-play">pause</button>
       <canvas class="pag-canvas"></canvas>
+    </div>
+    <div id="animation-info-box">
+      <h3>PAG信息</h3>
+      <div id="animation-info"></div>
     </div>
     <div class="button-container">
       <div class="pag-btn pag-btn-1" onclick="changeBg(1)"></div>
@@ -94,17 +120,17 @@
     <script>
       const vscode = acquireVsCodeApi();
       // 监听来自扩展的消息
-      window.addEventListener('message', (event) => {
+      window.addEventListener("message", (event) => {
         const message = event.data;
-        if (message.type === 'loadFile') {
+        if (message.type === "loadFile") {
           initPag(message.fileUri).catch((err) => {
-            console.log('onError', err)
-          })
+            console.log("onError", err);
+          });
         }
       });
       const PAGView = libpag.PAGView;
       const types = libpag.types;
-      const pagCanvasEl = document.querySelector('.pag-canvas');
+      const pagCanvasEl = document.querySelector(".pag-canvas");
       let pagView = null;
       const renderingMode = types.RenderingMode.WebGL;
       const loadPag = async (url) => {
@@ -118,43 +144,71 @@
         } catch (error) {
           console.error("Failed to fetch resource as ArrayBuffer:", error);
         }
-        return Promise.resolve(arrayBuffer)
-      }
+        return Promise.resolve(arrayBuffer);
+      };
       const initPag = async (src) => {
-        const pagBuffer = await loadPag(src).catch(err => console.warn(err))
+        const pagBuffer = await loadPag(src).catch((err) => console.warn(err));
         if (!pagBuffer) {
-          console.log('onError')
-          return
+          console.log("onError");
+          return;
         }
         pagView = PAGView.init(pagBuffer, pagCanvasEl, {
-          renderingMode: renderingMode == 'webgl' ? types.RenderingMode.WebGL : types.RenderingMode.Canvas2D,
-          useScale: true
+          renderingMode:
+            renderingMode == "webgl"
+              ? types.RenderingMode.WebGL
+              : types.RenderingMode.Canvas2D,
+          useScale: true,
         });
+        console.log("pagView", pagView);
         pagView.setRepeatCount(0);
         await pagView.play();
+        // 更新 div 内容
+        const infoDiv = document.getElementById("animation-info");
+        const sequence = pagView.videoSequence;
+        console.log(
+          "宽高位置",
+          sequence.width,
+          sequence.height,
+          sequence.alphaStartX,
+          sequence.alphaStartY
+        );
+        infoDiv.innerHTML = `
+          <div class='item'><span>width: </span>${sequence.width}</div>
+          <div class='item'><span>height: </span>${sequence.height}</div>
+          <div class='item'><span>x: </span>${pagView.viewportSize.x}</div>
+          <div class='item'><span>y: </span>${pagView.viewportSize.y}</div>
+          <div class='item'><span>frames: </span>${pagView.videoSequence.frameCount}</div>
+          <div class='item'><span>duration: </span>${pagView.videoReader._duration}</div>
+        `;
+      };
+      function play() {
+        pagView.play();
       }
-      function play (){ pagView.play()};
-      function pause (){ pagView.pause()};
-      function destroy (){ pagView.destroy()};
-      const pagPlayer = document.querySelector('.pag-player');
+      function pause() {
+        pagView.pause();
+      }
+      function destroy() {
+        pagView.destroy();
+      }
+      const pagPlayer = document.querySelector(".pag-player");
       const colors = {
-        1: '#000',
-        2: '#FFF',
-        3: '#00bcd3'
+        1: "#000",
+        2: "#FFF",
+        3: "#00bcd3",
       };
       let playStatus = true;
-      const playRef = document.querySelector('.pag-play');
-      function playToggle () {
+      const playRef = document.querySelector(".pag-play");
+      function playToggle() {
         if (playStatus) {
           pause();
-          playRef.innerText = 'play';
+          playRef.innerText = "play";
         } else {
           play();
-          playRef.innerText = 'pause';
+          playRef.innerText = "pause";
         }
         playStatus = !playStatus;
       }
-      function changeBg (type) {
+      function changeBg(type) {
         pagPlayer.style.backgroundColor = colors[type];
       }
     </script>
