@@ -1,0 +1,96 @@
+name: VS Code Extension CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - 'temp-*'  # 支持以 temp- 开头的分支
+  pull_request:
+    branches:
+      - main
+      - 'temp-*'
+  workflow_dispatch:  # 支持手动触发工作流
+    inputs:
+      branch:
+        description: 'Branch to run the workflow on'
+        required: true
+        default: 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [">12.x"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref_name }}
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Cache VS Code download
+        id: cache-vscode
+        uses: actions/cache@v3
+        with:
+          path: .vscode-test
+          key: ${{ runner.os }}-vscode-${{ hashFiles('package.json') }}-${{ '1.98.2' }}
+
+      - name: Check cache status
+        run: |
+          if [ "${{ steps.cache-vscode.outputs.cache-hit }}" == 'true' ]; then
+            echo "Cache hit, skipping download."
+          else
+            echo "Cache miss, downloading VS Code."
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install vsce
+        run: npm install -g vsce
+
+      - name: Lint code
+        run: npm run lint
+
+      - name: Compile code
+        run: npm run compile
+
+      - name: Compile tests
+        run: npm run compile-tests
+
+      - name: Set up XVFB
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          export DISPLAY=:99.0
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          sleep 5  # 等待 XVFB 服务启动
+
+      - name: Set VS Code version environment variable
+        run: echo "VSCODE_VERSION=1.98.2" >> $GITHUB_ENV
+
+      - name: Run tests
+        env:
+          DISPLAY: :99.0  # 确保 DISPLAY 环境变量在测试步骤中生效
+          VSCODE_CACHE_PATH: .vscode-test
+          USE_VSCODE_VERSION_FROM_ENV: true  # 假设测试脚本支持通过环境变量指定版本
+        run: npm test
+
+      - name: Package extension
+        if: github.ref == 'refs/heads/main'
+        run: npm run package
+
+      - name: Publish extension (if tagged release)
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx vsce publish --pat $VSCE_PAT
+    

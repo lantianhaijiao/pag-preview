@@ -2,7 +2,7 @@
  * @Author: haobin.wang
  * @Date: 2024-12-25 10:13:50
  * @LastEditors: haobin.wang
- * @LastEditTime: 2024-12-25 14:37:56
+ * @LastEditTime: 2025-04-07 18:59:17
  * @Description: Do not edit
  */
 import * as vscode from "vscode";
@@ -13,7 +13,7 @@ export default (
 ) => {
   let disposable = vscode.commands.registerCommand(
     "pagViewer.fileDetail",
-    (uri) => {
+    (uri, webviewPanel) => {
       console.log("uri8", uri);
       // 获取文件大小
       if (!uri) {
@@ -44,6 +44,10 @@ export default (
           fileSizeDisplay = (fileSize / 1024).toFixed(2) + " KB";
         }
         fileSizeStatusBarItem.text = `pag: ${fileSizeDisplay}`;
+        webviewPanel.webview.postMessage({
+          type: "fileSize",
+          size: fileSizeDisplay,
+        });
         fileSizeStatusBarItem.show();
       });
     }
@@ -65,6 +69,7 @@ export default (
   context.subscriptions.push(
     vscode.workspace.onDidCloseTextDocument((document) => {
       console.log("文件关闭了", document.fileName);
+      fileSizeStatusBarItem.hide();
     })
   );
   return disposable;

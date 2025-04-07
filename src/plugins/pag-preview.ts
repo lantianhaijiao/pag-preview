@@ -2,7 +2,7 @@
  * @Author: haobin.wang
  * @Date: 2024-12-17 11:50:59
  * @LastEditors: haobin.wang
- * @LastEditTime: 2025-03-30 09:57:24
+ * @LastEditTime: 2025-04-07 19:09:20
  * @Description: Do not edit
  */
 import * as vscode from "vscode";
@@ -52,7 +52,11 @@ class PagCustomEditorProvider
     const documentUri = document.uri.toString();
 
     // vscode指令通信
-    vscode.commands.executeCommand("pagViewer.fileDetail", document.uri);
+    vscode.commands.executeCommand(
+      "pagViewer.fileDetail",
+      document.uri,
+      webviewPanel
+    );
     if (this.initializedWebviews.has(documentUri)) {
       console.log("Webview already initialized, skipping HTML update.");
       return;
@@ -77,13 +81,35 @@ class PagCustomEditorProvider
     const htmlContent = fs.readFileSync(htmlPath, "utf-8");
     const fastDiffUri = webviewPanel.webview.asWebviewUri(
       vscode.Uri.file(
-        path.join(this.context.extensionPath, "dist/webview/pag.min.js")
+        path.join(this.context.extensionPath, "dist/webview/libpag-lite.min.js")
       )
     );
-    const updatedHtmlContent = htmlContent.replace("./pag.min.js", fastDiffUri);
+    const libPag = webviewPanel.webview.asWebviewUri(
+      vscode.Uri.file(
+        path.join(this.context.extensionPath, "dist/webview/libpag.min.js")
+      )
+    );
+    const wasm = webviewPanel.webview.asWebviewUri(
+      vscode.Uri.file(
+        path.join(this.context.extensionPath, "dist/webview/libpag.wasm")
+      )
+    );
+    let updatedHtmlContent = htmlContent;
+    updatedHtmlContent = updatedHtmlContent.replaceAll(
+      "./libpag-lite.min.js",
+      fastDiffUri.toString()
+    );
+    updatedHtmlContent = updatedHtmlContent.replaceAll(
+      "./libpag.min.js",
+      libPag.toString()
+    );
+    updatedHtmlContent = updatedHtmlContent.replaceAll(
+      "./libpag.wasm",
+      wasm.toString()
+    );
     // 设置 Webview 内容
     webviewPanel.webview.html = updatedHtmlContent;
-     // 存储 Webview Panel 引用
+    // 存储 Webview Panel 引用
     this.initializedWebviews.set(documentUri, webviewPanel);
     // 将文件内容发送到 Webview
     const noticeWebviewFile = () => {
@@ -97,20 +123,50 @@ class PagCustomEditorProvider
     // 监听来自 Webview 的消息
     webviewPanel.webview.onDidReceiveMessage((message) => {
       if (message.command === "alert") {
-        vscode.window.showInformationMessage(message.text);
+        console.log('alert', message.text);
+        vscode.window.showErrorMessage(message.text);
+      } else if (message.command === "refreshPage") {
+        const library = message.library;
+        let scriptUrl = "";
+        if (library === "pag") {
+          scriptUrl = libPag.toString();
+        } else if (library === "pag-lite") {
+          scriptUrl = fastDiffUri.toString();
+        }
+        webviewPanel.webview.html = "";
+        webviewPanel.webview.html = updatedHtmlContent;
+
+        webviewPanel.webview.postMessage({
+          command: "initLibrary",
+          library: library,
+          scriptUrl: scriptUrl,
+          fileUri: fileUri.toString()
+        });
+        vscode.commands.executeCommand(
+          "pagViewer.fileDetail",
+          document.uri,
+          webviewPanel
+        );
       }
     });
     // 处理自定义编辑器生命周期
     webviewPanel.onDidDispose(() => {
-      console.log('pag文件关闭');
+      console.log("pag文件关闭", webviewPanel);
       this.initializedWebviews.delete(documentUri);
       vscode.commands.executeCommand("pagViewer.fileDetail");
     });
     // 监听 Webview 面板的可见性变化
     webviewPanel.onDidChangeViewState((event) => {
+      console.log("切换tab了", event.webviewPanel.visible, event.webviewPanel);
       if (event.webviewPanel.visible) {
         // noticeWebviewFile();
-        vscode.commands.executeCommand("pagViewer.fileDetail", document.uri);
+        vscode.commands.executeCommand(
+          "pagViewer.fileDetail",
+          document.uri,
+          webviewPanel
+        );
+      } else {
+        vscode.commands.executeCommand("pagViewer.fileDetail");
       }
     });
   }

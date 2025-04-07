@@ -2,7 +2,7 @@
  * @Author: haobin.wang
  * @Date: 2024-12-17 11:43:12
  * @LastEditors: haobin.wang
- * @LastEditTime: 2025-03-30 16:28:06
+ * @LastEditTime: 2025-04-07 18:58:39
  * @Description: Do not edit
 -->
 # Change Log
@@ -10,6 +10,10 @@
 ### Added
 - Pag File Preview: A Visual Studio Code extension for previewing PAG files with ease and efficiency.
 - Documentation updates.
+
+## [1.1.0] - 2025-04-09
+### Added
+- Add pag sdk to switch to view dynamic effects, making it easier to choose which sdk to use
 
 ## [1.0.5] - 2025-03-30
 ### Added

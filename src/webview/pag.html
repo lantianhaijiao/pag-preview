@@ -91,7 +91,7 @@
         top: 0;
         left: 0;
         color: rgba(255, 255, 255, 0.8);
-        font-size: 12px;
+        font-size: 11px;
         padding: 10px;
         min-height: 50px;
         border-radius: 2px;
@@ -99,6 +99,43 @@
       #animation-info-box span {
         display: inline-block;
         min-width: 40px;
+      }
+      #animationSelector {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 8px 30px 8px 10px;
+        font-size: 14px;
+        color: #333;
+        cursor: pointer;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px;
+        margin: 0 10px;
+      }
+
+      #animationSelector:hover {
+        border-color: #999;
+      }
+
+      #animationSelector:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      }
+
+      /* 选项样式 */
+      #animationSelector option {
+        background-color: #fff;
+        color: #333;
+      }
+
+      #animationSelector option:hover {
+        background-color: #f0f0f0;
       }
     </style>
   </head>
@@ -110,77 +147,200 @@
     <div id="animation-info-box">
       <h3>PAG信息</h3>
       <div id="animation-info"></div>
+      <div class="file-size">size: <span></span></div>
+      <div class="sdk">sdk: <strong></strong></div>
     </div>
     <div class="button-container">
       <div class="pag-btn pag-btn-1" onclick="changeBg(1)"></div>
       <div class="pag-btn pag-btn-2" onclick="changeBg(2)"></div>
       <div class="pag-btn pag-btn-3" onclick="changeBg(3)"></div>
+      <select id="animationSelector">
+        <option value="pag-lite">pag-lite</option>
+        <option value="pag">pag</option>
+      </select>
     </div>
-    <script src="./pag.min.js"></script>
+    <script src="./libpag-lite.min.js"></script>
     <script>
       const vscode = acquireVsCodeApi();
       // 监听来自扩展的消息
-      window.addEventListener("message", (event) => {
+      let url = "";
+      var selectedLibrary = "pag-lite";
+      window.addEventListener("message", async (event) => {
         const message = event.data;
         if (message.type === "loadFile") {
-          initPag(message.fileUri).catch((err) => {
-            console.log("onError", err);
+          url = message.fileUri;
+          if (!url) return;
+          console.log('first', selectedLibrary);
+          sdkChange(selectedLibrary);
+          sdkHandle({
+            scriptUrl: getScriptUrl(),
+            currentLibrary: selectedLibrary
+          });
+        } else if (message.type === "fileSize") {
+          console.log('');
+          fileSize(message.size);
+        } else if (message.command === "initLibrary") {
+          const library = message.library;
+          const scriptUrl = message.scriptUrl;
+          // 清理之前的状态
+          if (pagView) {
+            try {
+              await pagView.destroy();
+            } catch (error) {
+              console.error("销毁 pagView 时出错:", error);
+            }
+            pagView = null;
+          }
+          url = message.fileUri;
+          selector.value = library;
+          sdkChange(library);
+          sdkHandle({
+            scriptUrl: scriptUrl,
+            currentLibrary: library
           });
         }
       });
-      const PAGView = libpag.PAGView;
-      const types = libpag.types;
-      const pagCanvasEl = document.querySelector(".pag-canvas");
-      let pagView = null;
-      const renderingMode = types.RenderingMode.WebGL;
-      const loadPag = async (url) => {
-        let arrayBuffer;
-        try {
-          const response = await fetch(url);
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          arrayBuffer = await response.arrayBuffer();
-        } catch (error) {
-          console.error("Failed to fetch resource as ArrayBuffer:", error);
-        }
-        return Promise.resolve(arrayBuffer);
-      };
-      const initPag = async (src) => {
-        const pagBuffer = await loadPag(src).catch((err) => console.warn(err));
-        if (!pagBuffer) {
-          console.log("onError");
-          return;
-        }
-        pagView = PAGView.init(pagBuffer, pagCanvasEl, {
-          renderingMode:
-            renderingMode == "webgl"
-              ? types.RenderingMode.WebGL
-              : types.RenderingMode.Canvas2D,
-          useScale: true,
-        });
-        console.log("pagView", pagView);
-        pagView.setRepeatCount(0);
-        await pagView.play();
-        // 更新 div 内容
-        const infoDiv = document.getElementById("animation-info");
-        const sequence = pagView.videoSequence;
-        console.log(
-          "宽高位置",
-          sequence.width,
-          sequence.height,
-          sequence.alphaStartX,
-          sequence.alphaStartY
-        );
+      const fileSizeEle = document.querySelector(".file-size span");
+      function fileSize(size) {
+        fileSizeEle.innerText = size;
+      }
+      const sdkEl = document.querySelector('.sdk strong');
+      function sdkChange(val) {
+        sdkEl.innerText = val;
+      }
+      var currentScript; // pag/pag-lite
+      const originalCanvas = document.querySelector(".pag-canvas");
+      var pagView;
+
+      async function loadPag(url) {
+        return fetch(url).then((response) => response.arrayBuffer());
+      }
+      // 监听选择事件
+      var selector = document.querySelector("#animationSelector");
+      selector.addEventListener("change", (event) => {
+        const value = event.target.value;
+        selectedLibrary = value;
+        switchLibrary();
+      });
+      const infoDiv = document.getElementById("animation-info");
+      function updateInfo(info) {
         infoDiv.innerHTML = `
-          <div class='item'><span>width: </span>${sequence.width}</div>
-          <div class='item'><span>height: </span>${sequence.height}</div>
-          <div class='item'><span>x: </span>${pagView.viewportSize.x}</div>
-          <div class='item'><span>y: </span>${pagView.viewportSize.y}</div>
-          <div class='item'><span>frames: </span>${pagView.videoSequence.frameCount}</div>
-          <div class='item'><span>duration: </span>${pagView.videoReader._duration}</div>
+          <div class='item'><span>width: </span>${info.width}</div>
+          <div class='item'><span>height: </span>${info.height}</div>
+          <div class='item'><span>frames: </span>${Math.floor(
+            info.frameCount
+          )}</div>
+          <div class='item'><span>frameRate: </span>${info.frameRate}</div>
+          <div class='item'><span>duration: </span>${info.duration}</div>
         `;
-      };
+      }
+      function getScriptUrl() {
+        return selectedLibrary === "pag"
+          ? "./libpag.min.js"
+          : "./libpag-lite.min.js";
+      }
+
+      async function switchLibrary() {
+        selectedLibrary =
+          document.getElementById("animationSelector").value;
+        vscode.postMessage({
+          command: "refreshPage",
+          library: selectedLibrary,
+        });
+      }
+      async function sdkHandle({
+        scriptUrl,
+        currentLibrary
+      }) {
+        const script = document.createElement("script");
+        script.src = scriptUrl;
+        document.head.appendChild(script);
+        const canvas = document.querySelector(".pag-canvas");
+        script.onload = async () => {
+          if (!url) return;
+          if (currentLibrary === "pag") {
+            await pagInit(url, canvas);
+          } else {
+            await pagLiteInit(url, canvas);
+          }
+        };
+      }
+
+      async function pagInit(url, canvas) {
+        const PAG = await window.libpag.PAGInit();
+        const buffer = await loadPag(url);
+        const pagFile = await PAG.PAGFile.load(buffer);
+        canvas.width = pagFile.width();
+        canvas.height = pagFile.height();
+
+        pagView = await PAG.PAGView.init(pagFile, canvas);
+        pagView.setRepeatCount(0);
+        console.log("-----pag-----", pagView);
+        await pagView.play();
+        const duration = pagView.duration() / 1000 / 1000;
+        // console.table({
+        //   帧率: pagView.frameRate,
+        //   总帧数: pagView.frameRate * duration,
+        //   动画时长: duration,
+        //   宽度: pagFile.width(),
+        //   高度: pagFile.height(),
+        // });
+        updateInfo({
+          width: pagFile.width(),
+          height: pagFile.height(),
+          duration: duration,
+          frameRate: pagView.frameRate,
+          frameCount: pagView.frameRate * duration,
+        });
+      }
+
+      async function pagLiteInit(url, canvas) {
+        const PAGView = libpag.PAGView;
+        const types = libpag.types;
+        const renderingMode = types.RenderingMode.WebGL;
+        const initPag = async (src) => {
+          const pagBuffer = await loadPag(src).catch((err) =>
+            console.warn(err)
+          );
+          if (!pagBuffer) {
+            console.log("onError");
+            return;
+          }
+
+          pagView = await PAGView.init(pagBuffer, canvas, {
+            renderingMode:
+              renderingMode == "webgl"
+                ? types.RenderingMode.WebGL
+                : types.RenderingMode.Canvas2D,
+            useScale: true,
+          });
+          pagView.setRepeatCount(0);
+          await pagView.play();
+          console.log("-----pag-lite-----", pagView);
+          // console.table({
+          //   帧率: pagView.videoSequence.frameRate,
+          //   总帧数: pagView.videoSequence.frameCount,
+          //   动画时长: pagView.videoReader._duration,
+          //   宽度: pagView.videoSequence.width,
+          //   高度: pagView.videoSequence.height,
+          // });
+          updateInfo({
+            width: pagView.videoSequence.width,
+            height: pagView.videoSequence.height,
+            duration: pagView.videoReader._duration,
+            frameRate: pagView.videoSequence.frameRate,
+            frameCount: pagView.videoSequence.frameCount,
+          });
+        };
+        await initPag(url).catch((err) => {
+          console.log("onError", err);
+          vscode.postMessage({
+            command: "alert",
+            text: `Unable to play: ${err.message}`,
+          });
+        });
+      }
+
       function play() {
         pagView.play();
       }

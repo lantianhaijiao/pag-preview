@@ -40,6 +40,12 @@ Initial release of Pag Preview with the following features:
 For any inquiries or support, please contact:
 
 - Email: 1159472304@qq.com
-- GitHub Issues: [Submit an Issue](https://github.com/lantianhaijiao)
+- GitHub Issues: [Submit an Issue](https://github.com/lantianhaijiao/pag-preview/issues)
+
+## License
+
+[MIT](https://opensource.org/licenses/MIT)
+
+Copyright (c) 2024-present, haobin.wang
 
 **Enjoy!**
