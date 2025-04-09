@@ -1,4 +1,4 @@
-# Pag Preview
+# Pag Preview [![VS Code](https://img.shields.io/badge/VS%20Code-Extension-blue)](https://marketplace.visualstudio.com/items?itemName=lantianhaijiao.pag-preview)
 
 
 ## Features

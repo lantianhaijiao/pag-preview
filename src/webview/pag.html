@@ -98,7 +98,7 @@
       }
       #animation-info-box span {
         display: inline-block;
-        min-width: 40px;
+        min-width: 60px;
       }
       #animationSelector {
         appearance: none;
@@ -115,7 +115,6 @@
         background-repeat: no-repeat;
         background-position: right 10px center;
         background-size: 16px;
-        margin: 0 10px;
       }
 
       #animationSelector:hover {
@@ -137,6 +136,25 @@
       #animationSelector option:hover {
         background-color: #f0f0f0;
       }
+      .sdk-select{
+        display: flex;
+        align-items: center;
+        margin: 0 10px;
+      }
+      .sdk-select span{
+        background-color: #fff;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 3px;
+        font-size: 12px;
+        padding: 0 5px;
+        margin: 0 2px;
+      }
+      .file-size span, .sdk span{
+        min-width: 60px;
+      }
     </style>
   </head>
   <body>
@@ -147,24 +165,27 @@
     <div id="animation-info-box">
       <h3>PAG信息</h3>
       <div id="animation-info"></div>
-      <div class="file-size">size: <span></span></div>
-      <div class="sdk">sdk: <strong></strong></div>
+      <div class="file-size"><span>size: </span><strong></strong></div>
+      <div class="sdk"><span>sdk: </span><strong></strong></div>
     </div>
     <div class="button-container">
       <div class="pag-btn pag-btn-1" onclick="changeBg(1)"></div>
       <div class="pag-btn pag-btn-2" onclick="changeBg(2)"></div>
       <div class="pag-btn pag-btn-3" onclick="changeBg(3)"></div>
-      <select id="animationSelector">
-        <option value="pag-lite">pag-lite</option>
-        <option value="pag">pag</option>
-      </select>
+      <div class="sdk-select">
+        <span>sdk:</span>
+        <select id="animationSelector">
+          <option value="pag">pag</option>
+          <option value="pag-lite">pag-lite</option>
+        </select>
+      </div>
     </div>
     <script src="./libpag-lite.min.js"></script>
     <script>
       const vscode = acquireVsCodeApi();
       // 监听来自扩展的消息
       let url = "";
-      var selectedLibrary = "pag-lite";
+      var selectedLibrary = "pag";
       window.addEventListener("message", async (event) => {
         const message = event.data;
         if (message.type === "loadFile") {
@@ -200,7 +221,7 @@
           });
         }
       });
-      const fileSizeEle = document.querySelector(".file-size span");
+      const fileSizeEle = document.querySelector(".file-size strong");
       function fileSize(size) {
         fileSizeEle.innerText = size;
       }
@@ -209,14 +230,14 @@
         sdkEl.innerText = val;
       }
       var currentScript; // pag/pag-lite
-      const originalCanvas = document.querySelector(".pag-canvas");
+      const originalCanvas = document.getElementsByClassName('pag-canvas')[0];
       var pagView;
 
       async function loadPag(url) {
         return fetch(url).then((response) => response.arrayBuffer());
       }
       // 监听选择事件
-      var selector = document.querySelector("#animationSelector");
+      var selector = document.getElementById("animationSelector");
       selector.addEventListener("change", (event) => {
         const value = event.target.value;
         selectedLibrary = value;
@@ -255,7 +276,7 @@
         const script = document.createElement("script");
         script.src = scriptUrl;
         document.head.appendChild(script);
-        const canvas = document.querySelector(".pag-canvas");
+        const canvas = document.getElementsByClassName('pag-canvas')[0];
         script.onload = async () => {
           if (!url) return;
           if (currentLibrary === "pag") {
@@ -336,7 +357,7 @@
           console.log("onError", err);
           vscode.postMessage({
             command: "alert",
-            text: `Unable to play: ${err.message}`,
+            text: `Unable to play: ${err.message}; \n You can click next to the color to switch to pag sdk for playback`,
           });
         });
       }
@@ -350,14 +371,14 @@
       function destroy() {
         pagView.destroy();
       }
-      const pagPlayer = document.querySelector(".pag-player");
+      const pagPlayer = document.getElementsByClassName('pag-player')[0];
       const colors = {
         1: "#000",
         2: "#FFF",
         3: "#00bcd3",
       };
       let playStatus = true;
-      const playRef = document.querySelector(".pag-play");
+      const playRef = document.getElementsByClassName('pag-play')[0];
       function playToggle() {
         if (playStatus) {
           pause();
