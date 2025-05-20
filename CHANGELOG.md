@@ -2,7 +2,7 @@
  * @Author: haobin.wang
  * @Date: 2024-12-17 11:43:12
  * @LastEditors: haobin.wang
- * @LastEditTime: 2025-05-17 09:43:57
+ * @LastEditTime: 2025-05-20 14:37:31
  * @Description: Do not edit
 -->
 # Change Log
@@ -13,7 +13,7 @@
 
 ## [1.1.1] - 2025-05-17
 ### Added
-- Added support for double-speed playback, but this function requires designer export support
+- Added support variable speed playback, but this function requires designer export support
 
 ## [1.1.0] - 2025-04-09
 ### Added
