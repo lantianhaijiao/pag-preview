@@ -1,3 +1,4 @@
+English | [简体中文](./README-zh-CN.md)  
 # Pag Preview [![VS Code](https://img.shields.io/badge/VS%20Code-Extension-blue)](https://marketplace.visualstudio.com/items?itemName=lantianhaijiao.pag-preview)
 
 

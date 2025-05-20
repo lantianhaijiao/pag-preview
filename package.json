@@ -9,11 +9,12 @@
     "preview",
     "PAG Preview",
     "media",
-    "visualization"
+    "visualization",
+    "Player"
   ],
   "author": "whb <1159472304@qq.com>",
   "icon": "favicon.ico",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "publisher": "lantianhaijiao",
   "engines": {
     "vscode": "^1.87.0"

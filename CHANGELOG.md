@@ -2,7 +2,7 @@
  * @Author: haobin.wang
  * @Date: 2024-12-17 11:43:12
  * @LastEditors: haobin.wang
- * @LastEditTime: 2025-04-07 18:58:39
+ * @LastEditTime: 2025-05-17 09:43:57
  * @Description: Do not edit
 -->
 # Change Log
@@ -10,6 +10,10 @@
 ### Added
 - Pag File Preview: A Visual Studio Code extension for previewing PAG files with ease and efficiency.
 - Documentation updates.
+
+## [1.1.1] - 2025-05-17
+### Added
+- Added support for double-speed playback, but this function requires designer export support
 
 ## [1.1.0] - 2025-04-09
 ### Added
