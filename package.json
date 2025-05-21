@@ -1,10 +1,10 @@
 {
   "name": "pag-preview",
-  "displayName": "Pag Preview",
+  "displayName": "PAG Preview",
   "description": "Preview your PAG animations directly in VS Code.",
   "keywords": [
     "pag",
-    "Pag",
+    "PAG",
     "animation",
     "preview",
     "PAG Preview",

@@ -1,10 +1,10 @@
 English | [简体中文](./README-zh-CN.md)  
-# Pag Preview [![VS Code](https://img.shields.io/badge/VS%20Code-Extension-blue)](https://marketplace.visualstudio.com/items?itemName=lantianhaijiao.pag-preview)
+# PAG Preview [![VS Code](https://img.shields.io/badge/VS%20Code-Extension-blue)](https://marketplace.visualstudio.com/items?itemName=lantianhaijiao.pag-preview)
 
 
 ## Features
 
-Pag File Preview: A Visual Studio Code extension for previewing PAG files with ease and efficiency.
+PAG File Preview: A Visual Studio Code extension for previewing PAG files with ease and efficiency.
 
 ## Requirements
 - Visual Studio Code version 1.87.0 or higher.
@@ -24,7 +24,7 @@ This extension contributes the following settings:
 
 ### 1.0.0
 
-Initial release of Pag Preview with the following features:
+Initial release of PAG Preview with the following features:
 
 - Preview PAG files directly within Visual Studio Code.
 - Support pause and resume playback
