@@ -2,7 +2,7 @@
  * @Author: haobin.wang
  * @Date: 2024-12-17 11:43:12
  * @LastEditors: haobin.wang
- * @LastEditTime: 2025-05-20 14:38:56
+ * @LastEditTime: 2025-07-06 11:44:52
  * @Description: Do not edit
 -->
 # Change Log
@@ -10,6 +10,10 @@
 ### Added
 - PAG File Preview: A Visual Studio Code extension for previewing PAG files with ease and efficiency.
 - Documentation updates.
+
+## [1.1.2] - 2025-07-06
+### Added
+- Tip information optimization
 
 ## [1.1.1] - 2025-05-17
 ### Added
