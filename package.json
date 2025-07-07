@@ -1,10 +1,10 @@
 {
   "name": "pag-preview",
-  "displayName": "Pag Preview",
+  "displayName": "PAG Preview",
   "description": "Preview your PAG animations directly in VS Code.",
   "keywords": [
     "pag",
-    "Pag",
+    "PAG",
     "animation",
     "preview",
     "PAG Preview",
@@ -14,7 +14,7 @@
   ],
   "author": "whb <1159472304@qq.com>",
   "icon": "favicon.ico",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "publisher": "lantianhaijiao",
   "engines": {
     "vscode": "^1.87.0"

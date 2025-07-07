@@ -1,8 +1,8 @@
-# Pag Preview [![VS Code](https://img.shields.io/badge/VS%20Code-Extension-blue)](https://marketplace.visualstudio.com/items?itemName=lantianhaijiao.pag-preview)
+# PAG Preview [![VS Code](https://img.shields.io/badge/VS%20Code-Extension-blue)](https://marketplace.visualstudio.com/items?itemName=lantianhaijiao.pag-preview)
 
 ## 功能
 
-Pag File Preview：Visual Studio Code 扩展，可轻松高效地预览 PAG 文件。
+PAG File Preview：Visual Studio Code 扩展，可轻松高效地预览 PAG 文件。
 
 ## 要求
 - Visual Studio Code 版本 1.87.0 或更高版本。
@@ -21,7 +21,7 @@ Pag File Preview：Visual Studio Code 扩展，可轻松高效地预览 PAG 文�
 
 ### 1.0.0
 
-Pag Preview 的初始版本具有以下功能：
+PAG Preview 的初始版本具有以下功能：
 
 - 直接在 Visual Studio Code 中预览 PAG 文件。
 - 支持暂停和继续播放

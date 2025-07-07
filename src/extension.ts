@@ -2,7 +2,7 @@
  * @Author: haobin.wang
  * @Date: 2024-12-17 11:43:12
  * @LastEditors: haobin.wang
- * @LastEditTime: 2024-12-25 11:13:39
+ * @LastEditTime: 2025-05-20 14:39:33
  * @Description: Do not edit
  */
 // The module 'vscode' contains the VS Code extensibility API
@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('pag-preview.helloWorld', () => {
 		// The code you place here will be executed every time your command is executed
 		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Pag Preview!');
+		vscode.window.showInformationMessage('Hello World from PAG Preview!');
 	});
 
 	context.subscriptions.push(disposable);

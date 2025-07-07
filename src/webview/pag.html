@@ -13,7 +13,7 @@
     />
     <meta content="telephone=no" name="format-detection" />
     <meta content="email=no" name="format-detection" />
-    <title>Pag Preview</title>
+    <title>PAG Preview</title>
     <style>
       * {
         margin: 0;
@@ -271,8 +271,20 @@
         font-size: 10px;
         cursor: pointer;
       }
-      .timeNoSpeedTips em{
+      .timeNoSpeedTips em {
         margin: 0 2px;
+      }
+      #error-tips {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     </style>
   </head>
@@ -281,8 +293,9 @@
       <button onclick="playToggle()" class="pag-play">pause</button>
       <canvas class="pag-canvas"></canvas>
     </div>
+    <div id="error-tips"></div>
     <div id="animation-info-box">
-      <h3>PAG信息</h3>
+      <h3>PAG Info</h3>
       <div id="animation-info"></div>
       <div class="file-size"><span>size: </span><strong></strong></div>
       <div class="sdk"><span>sdk: </span><strong></strong></div>
@@ -514,6 +527,8 @@
         });
       }
 
+      var errorTips = document.getElementById("error-tips");
+
       async function pagLiteInit(url, canvas) {
         const PAGView = libpag.PAGView;
         const types = libpag.types;
@@ -554,9 +569,11 @@
         };
         await initPag(url).catch((err) => {
           console.log("onError", err);
+          const tips = `Unable to play: ${err.message}; \n You can click on the SDK next to the color to switch to PAG for playback \n (您可以单击颜色旁边的sdk切换到pag进行播放)`;
+          errorTips.innerText = tips;
           vscode.postMessage({
             command: "alert",
-            text: `Unable to play: ${err.message}; \n You can click next to the color to switch to pag sdk for playback`,
+            text: tips,
           });
         });
       }
